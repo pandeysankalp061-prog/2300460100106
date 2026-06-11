@@ -1,64 +1,101 @@
-# Backend Track - Notification System
+# vary
 
-A comprehensive backend notification system built with Node.js and Express.js, featuring vehicle maintenance scheduling and logging capabilities.
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
-## Project Structure
+Manipulate the HTTP Vary header
 
-```
-2300460100106/
-├── logging_middleware/              # HTTP request/response logging
-│   └── index.js
-├── vehicle_maintence_scheduler/     # Vehicle maintenance task scheduling
-│   └── scheduler.js
-├── notification_app_be/             # Notification API backend
-│   └── server.js
-├── notification_system_design.md    # System architecture documentation
-├── .gitignore                       # Git ignore file
-└── README.md                        # This file
-```
+## Installation
 
-## Quick Start
+This is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Installation is done using the
+[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally): 
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-
-### Installation
-```bash
-npm install
+```sh
+$ npm install vary
 ```
 
-### Running the Application
-```bash
-node notification_app_be/server.js
+## API
+
+<!-- eslint-disable no-unused-vars -->
+
+```js
+var vary = require('vary')
 ```
 
-The server will start on `http://localhost:3000`
+### vary(res, field)
 
-## API Endpoints
+Adds the given header `field` to the `Vary` response header of `res`.
+This can be a string of a single field, a string of a valid `Vary`
+header, or an array of multiple fields.
 
-### Notifications
-- `GET /api/notifications` - Get all notifications
-- `POST /api/notifications` - Create a new notification
-- `PUT /api/notifications/:id` - Mark notification as read
-- `DELETE /api/notifications/:id` - Delete a notification
-- `GET /health` - Health check
+This will append the header if not already listed, otherwise leaves
+it listed in the current location.
 
-## Modules
+<!-- eslint-disable no-undef -->
 
-### 1. Logging Middleware
-Handles request and response logging for all HTTP operations.
+```js
+// Append "Origin" to the Vary header of the response
+vary(res, 'Origin')
+```
 
-### 2. Vehicle Maintenance Scheduler
-Manages scheduling and tracking of vehicle maintenance tasks.
+### vary.append(header, field)
 
-### 3. Notification App Backend
-REST API for creating, retrieving, and managing notifications.
+Adds the given header `field` to the `Vary` response header string `header`.
+This can be a string of a single field, a string of a valid `Vary` header,
+or an array of multiple fields.
 
-## Documentation
+This will append the header if not already listed, otherwise leaves
+it listed in the current location. The new header string is returned.
 
-See `notification_system_design.md` for detailed architecture, API specifications, and design patterns.
+<!-- eslint-disable no-undef -->
+
+```js
+// Get header string appending "Origin" to "Accept, User-Agent"
+vary.append('Accept, User-Agent', 'Origin')
+```
+
+## Examples
+
+### Updating the Vary header when content is based on it
+
+```js
+var http = require('http')
+var vary = require('vary')
+
+http.createServer(function onRequest (req, res) {
+  // about to user-agent sniff
+  vary(res, 'User-Agent')
+
+  var ua = req.headers['user-agent'] || ''
+  var isMobile = /mobi|android|touch|mini/i.test(ua)
+
+  // serve site, depending on isMobile
+  res.setHeader('Content-Type', 'text/html')
+  res.end('You are (probably) ' + (isMobile ? '' : 'not ') + 'a mobile user')
+})
+```
+
+## Testing
+
+```sh
+$ npm test
+```
 
 ## License
 
-Proprietary
+[MIT](LICENSE)
+
+[npm-image]: https://img.shields.io/npm/v/vary.svg
+[npm-url]: https://npmjs.org/package/vary
+[node-version-image]: https://img.shields.io/node/v/vary.svg
+[node-version-url]: https://nodejs.org/en/download
+[travis-image]: https://img.shields.io/travis/jshttp/vary/master.svg
+[travis-url]: https://travis-ci.org/jshttp/vary
+[coveralls-image]: https://img.shields.io/coveralls/jshttp/vary/master.svg
+[coveralls-url]: https://coveralls.io/r/jshttp/vary
+[downloads-image]: https://img.shields.io/npm/dm/vary.svg
+[downloads-url]: https://npmjs.org/package/vary
